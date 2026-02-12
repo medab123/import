@@ -1,0 +1,58 @@
+{
+    "name": "elaitech/import",
+    "description": "Elaitech Import Package - A comprehensive import workflow system for Laravel",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Elaitech",
+            "email": "info@elaitech.com"
+        }
+    ],
+    "require": {
+        "php": "^8.4",
+        "illuminate/support": "^12.0",
+        "illuminate/database": "^12.0",
+        "illuminate/http": "^12.0",
+        "illuminate/queue": "^12.0",
+        "illuminate/console": "^12.0",
+        "spatie/laravel-activitylog": "^4.11",
+        "spatie/laravel-data": "^4.19",
+        "spatie/laravel-view-models": "^1.6",
+        "league/flysystem-ftp": "^3.31",
+        "league/flysystem-sftp-v3": "^3.31",
+        "symfony/yaml": "^7.4"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^10.0",
+        "phpunit/phpunit": "^11.5.3",
+        "laravel/pint": "^1.24"
+    },
+    "autoload": {
+        "psr-4": {
+            "Elaitech\\Import\\": "src/"
+        },
+        "files": [
+            "src/Helpers.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Elaitech\\Import\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Elaitech\\Import\\ImportServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "config": {
+        "sort-packages": true,
+        "preferred-install": "dist",
+        "optimize-autoloader": true
+    }
+}
