@@ -24,7 +24,8 @@ final class ImportPipelineConfig extends Data
         public ?ImagesPrepareConfigurationData $imagesPrepareConfig = null,
         public ?PrepareConfigurationData $prepareConfig = null,
         public ImportPipelineOptions $options = new ImportPipelineOptions,
-        public ?int $targetId = null
+        public ?int $targetId = null,
+        public ?int $pipelineId = null
     ) {}
 
     /**
@@ -61,7 +62,8 @@ final class ImportPipelineConfig extends Data
             imagesPrepareConfig: $imagesPrepareConfig ? self::buildImagesPrepareConfig($imagesPrepareConfig->config_data) : null,
             prepareConfig: self::buildPrepareConfig($pipeline),
             options: new ImportPipelineOptions,
-            targetId: (int)$pipeline->target_id
+            targetId: (int)$pipeline->target_id,
+            pipelineId: (int)$pipeline->id
         );
     }
 

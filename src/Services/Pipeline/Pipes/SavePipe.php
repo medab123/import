@@ -6,6 +6,7 @@ namespace Elaitech\Import\Services\Pipeline\Pipes;
 
 use Elaitech\Import\Enums\ImageDownloadMode;
 use Elaitech\Import\Enums\PipelineStage;
+use Elaitech\Import\Services\Core\Contracts\ResultSaverInterface;
 use Elaitech\Import\Services\Jobs\ImageDownloadJob;
 use Elaitech\Import\Services\Pipeline\DTOs\PipelinePassable;
 use Elaitech\Import\Services\Pipeline\DTOs\SaveResultData;
@@ -92,15 +93,18 @@ final readonly class SavePipe
             throw new \RuntimeException('Target ID is required for saving products. Ensure the import pipeline has a target_id set.');
         }
 
-        return new SaveResultData(
-            createdProducts: $createdProducts,
-            updatedProducts: $updatedProducts,
-            errors: $errors,
-            totalProcessed: $totalProcessed,
-            createdCount: $createdCount,
-            updatedCount: $updatedCount,
-            errorCount: $errorCount,
-        );
+
+        $saveUsing = config('import-pipeline.save_using', null);
+
+        if (! $saveUsing) {
+            throw new \RuntimeException('No data saver found');
+        }
+
+        if (!( $saveUsing instanceof ResultSaverInterface)) {
+            throw new \RuntimeException('No data saver found');
+        }
+
+       return $saveUsing->save($passable,$targetId);
     }
 
     /**

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Elaitech\Import\Services\Pipeline\Services;
 
+use App\Models\TargetField;
 use Str;
 
 final class TargetFieldsService
@@ -13,7 +14,7 @@ final class TargetFieldsService
     public function getTargetFields(): array
     {
         $organization = null;
-        
+
         if (app()->has('organization')) {
             $organization = app('organization');
         }
@@ -22,7 +23,7 @@ final class TargetFieldsService
             return [];
         }
 
-        return \App\Models\TargetField::where('organization_uuid', $organization->uuid)
+        return TargetField::where('organization_uuid', $organization->uuid)
             ->get()
             ->map(fn ($item) => [
                 "field" => $item->field,
