@@ -43,7 +43,7 @@ final readonly class SavePipe
         ]);
 
         try {
-            $saveResult = $this->saveProducts($passable->prepareResult->preparedData, $passable);
+            $saveResult = $this->saveProducts($passable);
             $stageTiming = microtime(true) - $stageStart;
             $this->logger->info('Save stage completed', [
                 'total_processed' => $saveResult->totalProcessed,
@@ -74,19 +74,11 @@ final readonly class SavePipe
     /**
      * Save products to the database.
      *
-     * @param  array<int, array<string, mixed>>  $data  Array of product data
-     * @param  PipelinePassable  $passable  The pipeline passable containing config
+     * @param PipelinePassable $passable The pipeline passable containing config
      * @return SaveResultData The save result
      */
-    private function saveProducts(array $data, PipelinePassable $passable): SaveResultData
+    private function saveProducts( PipelinePassable $passable): SaveResultData
     {
-        $createdProducts = [];
-        $updatedProducts = [];
-        $errors = [];
-        $totalProcessed = 0;
-        $createdCount = 0;
-        $updatedCount = 0;
-        $errorCount = 0;
         $targetId = $passable->config->targetId;
 
         if (! $targetId) {
