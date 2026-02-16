@@ -52,7 +52,7 @@ final class ImportPipelineExecution extends Model
 
     public function results(): HasMany
     {
-        return $this->hasMany(ImportPipelineResult::class, 'execution_id');
+        return $this->hasMany(\App\Models\ImportPipelineResult::class, 'execution_id');
     }
 
     // Scopes
