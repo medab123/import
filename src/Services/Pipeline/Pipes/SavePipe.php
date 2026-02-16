@@ -11,6 +11,7 @@ use Elaitech\Import\Services\Jobs\ImageDownloadJob;
 use Elaitech\Import\Services\Pipeline\DTOs\PipelinePassable;
 use Elaitech\Import\Services\Pipeline\DTOs\SaveResultData;
 use Closure;
+use Illuminate\Contracts\Container\Container;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -22,7 +23,8 @@ use Psr\Log\LoggerInterface;
 final readonly class SavePipe
 {
     public function __construct(
-        private LoggerInterface $logger
+        private LoggerInterface $logger,
+        private Container $container
     ) {}
 
     /**
@@ -85,18 +87,23 @@ final readonly class SavePipe
             throw new \RuntimeException('Target ID is required for saving products. Ensure the import pipeline has a target_id set.');
         }
 
+        $saveUsingClass = config('import-pipelines.save.using', null);
 
-        $saveUsing = config('import-pipeline.save_using', null);
-
-        if (! $saveUsing) {
-            throw new \RuntimeException('No data saver found');
+        if (! $saveUsingClass) {
+            throw new \RuntimeException('No data saver class configured. Please set IMPORT_PIPELINES_SAVE_USING in your .env or config/import-pipelines.php');
         }
 
-        if (!( $saveUsing instanceof ResultSaverInterface)) {
-            throw new \RuntimeException('No data saver found');
+        if (! is_string($saveUsingClass) || ! class_exists($saveUsingClass)) {
+            throw new \RuntimeException("Invalid data saver class: {$saveUsingClass}");
         }
 
-       return $saveUsing->save($passable,$targetId);
+        if (! is_subclass_of($saveUsingClass, ResultSaverInterface::class)) {
+            throw new \RuntimeException("Data saver class must implement ResultSaverInterface: {$saveUsingClass}");
+        }
+
+        $saveUsing = $this->container->make($saveUsingClass);
+
+        return $saveUsing->save($passable, $targetId);
     }
 
     /**

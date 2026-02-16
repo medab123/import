@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Elaitech\Import\Services\Jobs;
 
-use App\Events\PipelineExecutedEvent;
+use Elaitech\Import\Events\PipelineExecutedEvent;
 use Elaitech\Import\Models\ImportPipeline;
 use Elaitech\Import\Services\Pipeline\Contracts\ImportPipelineInterface;
 use Elaitech\Import\Services\Pipeline\Contracts\PipelineExecutionServiceInterface;

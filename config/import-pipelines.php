@@ -38,6 +38,12 @@ return [
         'using' => null,
     ],
 
+    'save' => [
+        // Set the class that implements ResultSaverInterface to handle saving import data
+        // Example: 'using' => \App\Services\Import\DatabaseResultSaver::class,
+        'using' => env('IMPORT_PIPELINES_SAVE_USING', null),
+    ],
+
     'filters' => [
         'operators' => [
             EqualsOperator::class,
