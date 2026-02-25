@@ -61,7 +61,7 @@ final class PipelineSchedulingService implements PipelineSchedulingServiceInterf
         $query = ImportPipeline::query()
             ->active()
             ->scheduled()
-            ->with(['company', 'config']);
+            ->with(['config']);
 
         if ($frequency) {
             $query->byFrequency($frequency);
