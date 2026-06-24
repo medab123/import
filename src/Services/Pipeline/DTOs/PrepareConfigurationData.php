@@ -26,11 +26,13 @@ final class PrepareConfigurationData extends Data
      * @param  array<int, array<string, mixed>>  $data  The data to prepare
      * @param  int|null  $targetId  Target ID for context-dependent transformations
      * @param  array<string>  $transformations  List of transformation names to apply
+     * @param  int|null  $pipelineId  Owning pipeline id, for resolvers that need pipeline context
      */
     public function __construct(
         public array $data,
         public ?int $targetId = null,
         array $transformations = [],
+        public ?int $pipelineId = null,
     ) {
         $this->transformations = $transformations ?: [
             'category',

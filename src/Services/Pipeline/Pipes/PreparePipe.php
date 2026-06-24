@@ -48,6 +48,7 @@ final readonly class PreparePipe
             $prepareConfig = new PrepareConfigurationData(
                 data: $dataToPrepare,
                 targetId: $passable->config->targetId,
+                pipelineId: $passable->config->pipelineId,
             );
 
             $prepareResult = $this->prepareService->prepare($prepareConfig);

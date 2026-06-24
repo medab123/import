@@ -39,15 +39,21 @@ final readonly class PrepareService implements PrepareServiceInterface
                 preparedData: $config->data,
                 originalData: $config->data,
                 totalRows: count($config->data),
-                preparedRows: 0,
-                skippedRows: count($config->data),
+                preparedRows: count($config->data),
+                skippedRows: 0,
                 transformationStats: ['count' => 0],
                 errors: [],
             );
         }
 
-        if (!($prepareUsing instanceof ResolverInterface)) {
-            throw new InvalidArgumentException('The Prepare service must implement ResolverInterface ');
+        // Accept either a ready ResolverInterface instance or a class-string
+        // resolved through the container (consistent with import-pipelines.save.using).
+        $resolver = is_string($prepareUsing) ? app($prepareUsing) : $prepareUsing;
+
+        if (!($resolver instanceof ResolverInterface)) {
+            throw new InvalidArgumentException(
+                'import-pipelines.prepare.using must be a '.ResolverInterface::class.' instance or class-string.'
+            );
         }
 
         $preparedData = [];
@@ -57,7 +63,7 @@ final readonly class PrepareService implements PrepareServiceInterface
 
         foreach ($config->data as $index => $row) {
             try {
-                $preparedData[] = $prepareUsing->handle($row, $config);
+                $preparedData[] = $resolver->handle($row, $config);
                 $count++;
             } catch (\Throwable $e) {
                 $errors[(string)$index] = "Row {$index}: {$e->getMessage()}";
