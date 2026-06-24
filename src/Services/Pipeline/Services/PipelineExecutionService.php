@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Elaitech\Import\Services\Pipeline\Services;
 
 use Elaitech\Import\Enums\ImportPipelineStatus;
-use App\Events\PipelineExecutionFailedEvent;
+use Elaitech\Import\Events\PipelineExecutionFailedEvent;
 use Elaitech\Import\Models\ImportPipeline;
 use Elaitech\Import\Models\ImportPipelineExecution;
 use Elaitech\Import\Services\Pipeline\Contracts\PipelineExecutionServiceInterface;

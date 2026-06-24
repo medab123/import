@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Support\Facades\Auth;
 
-final class ImportPipeline extends Model
+class ImportPipeline extends Model
 {
     use HasFactory;
 
