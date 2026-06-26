@@ -6,6 +6,7 @@ namespace Elaitech\Import\Services\Downloader\Factories;
 
 use Elaitech\Import\Services\Core\Abstracts\BaseFactory;
 use Elaitech\Import\Services\Core\Contracts\DownloaderInterface;
+use Elaitech\Import\Services\Core\Exceptions\FactoryException;
 use Elaitech\Import\Services\Downloader\Contracts\DownloaderFactoryInterface;
 
 final class DownloaderFactory extends BaseFactory implements DownloaderFactoryInterface
@@ -13,7 +14,7 @@ final class DownloaderFactory extends BaseFactory implements DownloaderFactoryIn
     protected function validateServiceClass(string $className): void
     {
         if (! is_subclass_of($className, DownloaderInterface::class)) {
-            throw \Elaitech\Import\Services\Core\Exceptions\FactoryException::invalidServiceClass(
+            throw FactoryException::invalidServiceClass(
                 $className,
                 DownloaderInterface::class
             );

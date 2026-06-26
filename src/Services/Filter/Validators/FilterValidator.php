@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Elaitech\Import\Services\Filter\Validators;
 
 use Elaitech\Import\Services\Core\Exceptions\FilterException;
+use Elaitech\Import\Services\Core\Operators\FilterOperatorInterface;
 use Elaitech\Import\Services\Filter\Contracts\FilterValidatorInterface;
 use Elaitech\Import\Services\Filter\Contracts\OperatorRegistryInterface;
 
@@ -74,7 +75,7 @@ final class FilterValidator implements FilterValidatorInterface
     }
 
     private function validateOperatorSpecificRules(
-        \Elaitech\Import\Services\Core\Operators\FilterOperatorInterface $operator,
+        FilterOperatorInterface $operator,
         array $rule,
         array &$errors
     ): void {

@@ -2,9 +2,9 @@
 
 namespace Elaitech\Import\Services\Core\Abstracts;
 
-use App\Models\Product;
 use Elaitech\Import\Services\Core\Exceptions\InvalidImageException;
 use GuzzleHttp\Client;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Psr\Log\LoggerInterface;
 
@@ -38,7 +38,7 @@ abstract class AbstractDownloadStrategy
      *
      * @throws InvalidImageException If the downloaded file is not a valid image.
      */
-    protected function saveImage(string $url, Product $product, string $imageContent): string
+    protected function saveImage(string $url, Model $product, string $imageContent): string
     {
         $imageInfo = getimagesizefromstring($imageContent);
         if ($imageInfo === false) {
@@ -54,7 +54,7 @@ abstract class AbstractDownloadStrategy
             $extension = $this->mimeToExtension($imageInfo['mime']);
         }
         $imageName = pathinfo($url, PATHINFO_FILENAME).".$extension";
-        $imagePath = "import/$product->id/$imageName";
+        $imagePath = 'import/'.$product->getKey()."/$imageName";
         Storage::disk('local')->put($imagePath, $imageContent);
 
         return config('filesystems.disks.local.root').'/'.$imagePath;
@@ -118,5 +118,5 @@ abstract class AbstractDownloadStrategy
      * @param  Product  $product  The ID of the product.
      * @return array An array of paths to the saved images.
      */
-    abstract public function download(array $urls, Product $product): array;
+    abstract public function download(array $urls, Model $product): array;
 }

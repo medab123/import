@@ -10,6 +10,7 @@ use Elaitech\Import\Services\Pipeline\Contracts\ImportPipelineInterface;
 use Elaitech\Import\Services\Pipeline\Contracts\PipelineExecutionServiceInterface;
 use Elaitech\Import\Services\Pipeline\Contracts\PipelineSchedulingServiceInterface;
 use Elaitech\Import\Services\Pipeline\DTOs\ImportPipelineConfig;
+use Elaitech\Import\Services\Pipeline\DTOs\ImportPipelineResult;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -65,8 +66,25 @@ final class ProcessImportPipelineJob implements ShouldQueue
             ]);
 
             $this->executionService->markAsRunning($execution);
-            $this->processPipeline($execution);
-            $this->executionService->markAsCompleted($execution);
+            $result = $this->processPipeline($execution);
+
+            $errors = $result->getAllErrors();
+            if ($errors !== []) {
+                $this->logger->warning('Import pipeline completed with errors', [
+                    'pipeline_id' => $this->pipeline->id,
+                    'execution_id' => $execution->id,
+                    'error_count' => count($errors),
+                ]);
+            }
+
+            // Nothing processed + errors => a real failure, not a silent "completed".
+            if ($result->getProcessedRows() === 0 && $result->hasErrors()) {
+                $this->executionService->markAsFailed($execution, new \RuntimeException(
+                    'Pipeline processed 0 rows; first error: '.($errors[0] ?? 'unknown')
+                ));
+            } else {
+                $this->executionService->markAsCompleted($execution);
+            }
 
             $this->pipeline->update([
                 'last_executed_at' => now(),
@@ -103,7 +121,7 @@ final class ProcessImportPipelineJob implements ShouldQueue
         }
     }
 
-    private function processPipeline($execution): void
+    private function processPipeline($execution): ImportPipelineResult
     {
         $configs = $this->pipeline->config;
         if ($configs->isEmpty()) {
@@ -114,5 +132,7 @@ final class ProcessImportPipelineJob implements ShouldQueue
         $result = $this->pipelineProcessor->process($pipelineConfig);
 
         $this->executionService->updateResult($execution, $result);
+
+        return $result;
     }
 }

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Elaitech\Import\Services\Pipeline\Pipes;
 
-use Elaitech\Import\Enums\PipelineStage;
+use Closure;
 use Elaitech\DataMapper\Contracts\DataMapperInterface;
 use Elaitech\DataMapper\DTO\MappingConfigurationData;
+use Elaitech\Import\Enums\PipelineStage;
 use Elaitech\Import\Services\Pipeline\DTOs\PipelinePassable;
-use Closure;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -29,20 +29,23 @@ final readonly class MapPipe
      */
     public function handle(PipelinePassable $passable, Closure $next): PipelinePassable
     {
-        if (empty($passable->filterResult->filteredData)) {
-            $this->logger->warning('Map stage skipped: no filtered data available');
+        // Filter is optional; fall back to the read rows when no filter stage ran.
+        $inputData = $passable->filterResult->filteredData ?? ($passable->readResult->data ?? []);
 
-            return $passable->withError('Map stage requires filtered data');
+        if (empty($inputData)) {
+            $this->logger->warning('Map stage skipped: no input data available');
+
+            return $passable->withError('Map stage requires input data');
         }
 
         $stageStart = microtime(true);
         $this->logger->info('Starting map stage', [
-            'input_rows' => count($passable->filterResult->filteredData),
+            'input_rows' => count($inputData),
         ]);
 
         try {
             $mappingConfig = new MappingConfigurationData(
-                data: $passable->filterResult->filteredData,
+                data: $inputData,
                 mappingRules: $passable->config->mappingConfig->mappingRules,
                 headers: $passable->config->mappingConfig->headers
             );
@@ -51,7 +54,7 @@ final readonly class MapPipe
 
             $stageTiming = microtime(true) - $stageStart;
             $this->logger->info('Map stage completed', [
-                'input_rows' => count($passable->filterResult->filteredData),
+                'input_rows' => count($inputData),
                 'mapped_rows' => count($mappingResult->mappedData),
                 'errors' => count($mappingResult->errors),
                 'duration' => $stageTiming,

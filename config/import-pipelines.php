@@ -24,6 +24,7 @@ use Elaitech\Import\Services\Filter\Implementations\StartsWithOperator;
 use Elaitech\Import\Services\Reader\Implementations\CsvReader;
 use Elaitech\Import\Services\Reader\Implementations\JsonReader;
 use Elaitech\Import\Services\Reader\Implementations\XmlReader;
+use Elaitech\Import\Services\Reader\Implementations\YamlReader;
 
 return [
 
@@ -42,6 +43,16 @@ return [
         // Set the class that implements ResultSaverInterface to handle saving import data
         // Example: 'using' => \App\Services\Import\DatabaseResultSaver::class,
         'using' => env('IMPORT_PIPELINES_SAVE_USING', null),
+    ],
+
+    // Model used by ImportPipelineTemplate::creator(). Host apps may override.
+    'user_model' => env('IMPORT_PIPELINES_USER_MODEL', \App\Models\User::class),
+
+    // Image-download subsystem (ImageDownloadJob / SerialDownloadStrategy). The
+    // model must expose the host's media API (e.g. spatie/laravel-medialibrary).
+    'media' => [
+        'model' => env('IMPORT_PIPELINES_MEDIA_MODEL'),
+        'collection' => env('IMPORT_PIPELINES_MEDIA_COLLECTION', 'import'),
     ],
 
     'filters' => [
@@ -69,6 +80,7 @@ return [
         'csv' => CsvReader::class,
         'json' => JsonReader::class,
         'xml' => XmlReader::class,
+        'yaml' => YamlReader::class,
     ],
 
 

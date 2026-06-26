@@ -30,6 +30,7 @@ final class FtpDownloader extends AbstractDownloader
             }
 
             $contents = (string) $disk->get($path);
+            $this->enforceMaxBytes('FTP', $contents, $options);
             $filename = $request->preferredFilename ?? basename($path);
 
             $this->logger->info('FTP download completed', [
@@ -88,6 +89,7 @@ final class FtpDownloader extends AbstractDownloader
                 minValue: 1,
                 maxValue: 300
             ),
+            'max_bytes' => $this->maxBytesOption(),
         ];
     }
 

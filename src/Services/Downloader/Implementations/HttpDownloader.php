@@ -10,6 +10,7 @@ use Elaitech\Import\Services\Core\DTOs\OptionDefinition;
 use Elaitech\Import\Services\Core\Exceptions\DownloaderException;
 use Elaitech\Import\Services\Downloader\Abstracts\AbstractDownloader;
 use Illuminate\Http\Client\Factory as HttpClient;
+use Illuminate\Http\Client\PendingRequest;
 use Psr\Log\LoggerInterface;
 
 final class HttpDownloader extends AbstractDownloader
@@ -29,6 +30,7 @@ final class HttpDownloader extends AbstractDownloader
             $response->throw();
 
             $contents = (string) $response->body();
+            $this->enforceMaxBytes('HTTP', $contents, $options);
             $mimeType = (string) ($response->header('Content-Type') ?? 'application/octet-stream');
 
             $filename = $request->preferredFilename
@@ -124,10 +126,11 @@ final class HttpDownloader extends AbstractDownloader
                 default: null,
                 description: 'Request body configuration'
             ),
+            'max_bytes' => $this->maxBytesOption(),
         ];
     }
 
-    private function buildHttpClient(array $options): \Illuminate\Http\Client\PendingRequest
+    private function buildHttpClient(array $options): PendingRequest
     {
         $client = $this->http->timeout($options['timeout'])->withHeaders($options['headers']);
 
@@ -166,7 +169,7 @@ final class HttpDownloader extends AbstractDownloader
         return $client;
     }
 
-    private function makeRequest(\Illuminate\Http\Client\PendingRequest $client, string $url, array $options)
+    private function makeRequest(PendingRequest $client, string $url, array $options)
     {
         $method = strtoupper($options['method']);
         $body = $options['body'];
@@ -178,7 +181,7 @@ final class HttpDownloader extends AbstractDownloader
         return $this->sendWithBody($client, $method, $url, $body);
     }
 
-    private function sendWithBody(\Illuminate\Http\Client\PendingRequest $client, string $method, string $url, array $body)
+    private function sendWithBody(PendingRequest $client, string $method, string $url, array $body)
     {
         $type = $body['type'] ?? 'none';
         $data = $body['data'] ?? null;

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Elaitech\Import\Services\Pipeline\ValueObjects;
 
-use Elaitech\Import\Models\ImportPipeline;
 use Carbon\Carbon;
+use Elaitech\Import\Models\ImportPipeline;
 
 final readonly class ExecutionContext
 {

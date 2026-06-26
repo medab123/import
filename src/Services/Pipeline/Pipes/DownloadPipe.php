@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Elaitech\Import\Services\Pipeline\Pipes;
 
+use Closure;
 use Elaitech\Import\Enums\PipelineStage;
 use Elaitech\Import\Services\Downloader\Contracts\DownloaderFactoryInterface;
 use Elaitech\Import\Services\Pipeline\DTOs\PipelinePassable;
-use Closure;
 use Psr\Log\LoggerInterface;
 
 /**

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Elaitech\Import\Services\Pipeline\DTOs;
 
-use Elaitech\Import\Enums\PipelineStage;
 use Elaitech\DataMapper\DTO\DataMappingResultData;
+use Elaitech\Import\Enums\PipelineStage;
 use Elaitech\Import\Services\Core\DTOs\DownloadResultData;
 use Elaitech\Import\Services\Core\DTOs\FilterResultData;
 use Elaitech\Import\Services\Core\DTOs\ReadResultData;
@@ -181,11 +181,14 @@ final class PipelinePassable
             return $this;
         }
 
+        // Free each upstream payload once the next stage has consumed it, so a
+        // large feed's intermediate row arrays don't accumulate to the end.
+        // (mappingResult->mappedData is intentionally NOT freed — toResult()'s
+        // stats still count it, and prepareResult holds its own copy for Save.)
         match ($previousStage) {
-            PipelineStage::READ => $this->downloadResult->contents = null,
-            //            PipelineStage::FILTER => $this->readResult->data = [],
-            //            PipelineStage::MAP => $this->filterResult->filteredData = [],
-            //            PipelineStage::PREPARE => $this->mappingResult->mappedData = [],
+            PipelineStage::READ => $this->downloadResult !== null ? ($this->downloadResult->contents = null) : null,
+            PipelineStage::FILTER => $this->readResult !== null ? ($this->readResult->data = []) : null,
+            PipelineStage::MAP => $this->filterResult !== null ? ($this->filterResult->filteredData = []) : null,
             default => null,
         };
 

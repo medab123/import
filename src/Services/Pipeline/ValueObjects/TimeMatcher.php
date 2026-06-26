@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Elaitech\Import\Services\Pipeline\ValueObjects;
 
+use Carbon\Carbon;
+
 final readonly class TimeMatcher
 {
     public function __construct(
@@ -12,8 +14,8 @@ final readonly class TimeMatcher
 
     public function isTimeMatch(string $currentTime, string $startTime): bool
     {
-        $current = \Carbon\Carbon::createFromFormat('H:i', $currentTime);
-        $start = \Carbon\Carbon::createFromFormat('H:i', $startTime);
+        $current = Carbon::createFromFormat('H:i', $currentTime);
+        $start = Carbon::createFromFormat('H:i', $startTime);
 
         return $current->diffInMinutes($start) <= $this->toleranceMinutes;
     }

@@ -2,7 +2,6 @@
 
 namespace Elaitech\Import\Services\Jobs;
 
-use App\Models\Product;
 use Elaitech\Import\Services\Core\Contracts\DownloadStrategyInterface;
 use Elaitech\Import\Services\ImageDownloader\SerialDownloadStrategy;
 use Illuminate\Bus\Queueable;
@@ -42,13 +41,25 @@ class ImageDownloadJob implements ShouldQueue
         try {
 
             $this->logger = logger()->channel(self::LOG_CHANNEL);
-            $product = Product::find($this->productId)?->load('media');
+
+            // The owning model is host-defined — resolve it from config so the
+            // package isn't bound to a specific App\Models\* class.
+            $modelClass = config('import-pipelines.media.model');
+            if (! $modelClass || ! class_exists($modelClass)) {
+                $this->logger->error('No import-pipelines.media.model configured for image download');
+
+                return;
+            }
+
+            $collection = config('import-pipelines.media.collection', 'import');
+
+            $product = $modelClass::find($this->productId)?->load('media');
             if ($product) {
                 $strategy = $this->determineStrategy();
                 $images = $strategy->download($this->urls, $product);
-                $product->syncImportedMedia($images, Product::MEDIA_COLLECTION);
+                $product->syncImportedMedia($images, $collection);
             } else {
-                $this->logger->error("Product with id {$this->productId} not found");
+                $this->logger->error("Model {$modelClass} with id {$this->productId} not found");
             }
         } catch (\Exception $exception) {
             $this->logger->error($exception->getMessage(), [$exception->getTrace()]);

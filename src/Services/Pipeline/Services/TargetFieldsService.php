@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Elaitech\Import\Services\Pipeline\Services;
 
 use App\Models\TargetField;
-use Str;
 
 final class TargetFieldsService
 {
@@ -19,21 +18,20 @@ final class TargetFieldsService
             $organization = app('organization');
         }
 
-        if (!$organization) {
+        if (! $organization) {
             return [];
         }
 
         return TargetField::where('organization_uuid', $organization->uuid)
             ->get()
             ->map(fn ($item) => [
-                "field" => $item->field,
-                "label" => $item->label,
-                "category" => $item->category,
-                "description" => $item->description,
-                "type" => $item->type,
-                "model" => $item->model
+                'field' => $item->field,
+                'label' => $item->label,
+                'category' => $item->category,
+                'description' => $item->description,
+                'type' => $item->type,
+                'model' => $item->model,
             ])
             ->toArray();
     }
-
 }

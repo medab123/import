@@ -12,7 +12,4 @@ use Illuminate\Support\ServiceProvider;
  * Registers resolver services, registry, and factory for the prepare stage.
  * Supports dynamic registration of resolvers through the registry.
  */
-final class PrepareServiceProvider extends ServiceProvider
-{
-
-}
+final class PrepareServiceProvider extends ServiceProvider {}

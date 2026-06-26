@@ -28,6 +28,14 @@ final class NotContainsOperator extends AbstractFilterOperator
         return $this->isStringValue($value) || $this->isArrayValue($value);
     }
 
+    /**
+     * A null/empty data value does not contain anything, so "not contains" is true.
+     */
+    protected function handleNullValues(mixed $dataValue, mixed $filterValue): bool
+    {
+        return true;
+    }
+
     protected function doApply(mixed $dataValue, mixed $filterValue, array $options): bool
     {
         $caseSensitive = $this->isCaseSensitive($options);

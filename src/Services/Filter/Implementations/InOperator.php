@@ -36,12 +36,16 @@ final class InOperator extends AbstractFilterOperator
 
         $caseSensitive = $this->isCaseSensitive($options);
 
-        if (is_string($dataValue) && ! $caseSensitive) {
-            $dataValue = strtolower($dataValue);
-            $filterValue = array_map('strtolower', $filterValue);
+        // Compare as strings so a CSV "5" matches a config list value 5.
+        $needle = $this->convertToString($dataValue);
+        $haystack = array_map(fn ($v) => $this->convertToString($v), $filterValue);
+
+        if (! $caseSensitive) {
+            $needle = strtolower($needle);
+            $haystack = array_map('strtolower', $haystack);
         }
 
-        return in_array($dataValue, $filterValue, true);
+        return in_array($needle, $haystack, true);
     }
 
     public function getValidationRules(): array

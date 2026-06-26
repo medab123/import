@@ -7,6 +7,7 @@ namespace Elaitech\Import\Contracts\Repositories\ImportPipeline;
 use Elaitech\Import\Enums\ImportPipelineFrequency;
 use Elaitech\Import\Enums\ImportPipelineStatus;
 use Elaitech\Import\Models\ImportPipeline;
+use Elaitech\Import\Models\ImportPipelineExecution;
 use Elaitech\Import\Models\ImportPipelineTemplate;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
@@ -40,7 +41,7 @@ interface ImportPipelineRepositoryInterface
 
     public function paginateExecutionsByPipeline(int $pipelineId, int $perPage = 15): LengthAwarePaginator;
 
-    public function findExecutionById(int $id): ?\Elaitech\Import\Models\ImportPipelineExecution;
+    public function findExecutionById(int $id): ?ImportPipelineExecution;
 
     public function getRecentExecutions(?int $targetId = null, int $limit = 20): Collection;
 

@@ -7,26 +7,26 @@ namespace Elaitech\Import\Services\Reader\Implementations;
 use Elaitech\Import\Services\Core\DTOs\OptionDefinition;
 use Elaitech\Import\Services\Core\Exceptions\ReaderException;
 use Elaitech\Import\Services\Reader\Abstracts\AbstractReader;
+use Symfony\Component\Yaml\Exception\ParseException;
+use Symfony\Component\Yaml\Yaml;
 
 final class YamlReader extends AbstractReader
 {
     protected function doRead(string $contents, array $options): array
     {
         try {
-            // Note: yaml_parse requires yaml extension
-            if (! function_exists('yaml_parse')) {
-                throw new \Exception('YAML extension not available');
-            }
-
-            $data = yaml_parse($contents);
-            if ($data === false) {
-                throw new \Exception('Failed to parse YAML');
-            }
-
-            return $data;
-        } catch (\Exception $e) {
+            // Uses symfony/yaml (a package dependency) — no PECL yaml extension required.
+            $data = Yaml::parse($contents);
+        } catch (ParseException $e) {
             throw ReaderException::parsingFailed('YAML', $e->getMessage());
         }
+
+        if ($data === null || is_scalar($data) || ! is_array($data)) {
+            return [];
+        }
+
+        // A YAML sequence is already a list of rows; a single map becomes one row.
+        return array_is_list($data) ? $data : [$data];
     }
 
     public function getOptionDefinitions(): array

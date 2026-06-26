@@ -51,13 +51,15 @@ final readonly class ImportPipelineService implements ImportPipelineInterface
     {
         $errors = [];
 
-        // Validate downloader
-        if (! in_array(parse_url($config->downloadRequest->source, PHP_URL_SCHEME), $this->getAvailableDownloader())) {
-            $errors[] = 'Unsupported downloader scheme';
+        // Validate downloader by the discrete type key the pipe actually uses
+        // (FTP/SFTP select via options.type, not a URL scheme on source).
+        $downloaderType = $config->downloadRequest->options['type'] ?? 'https';
+        if (! in_array($downloaderType, $this->getAvailableDownloader(), true)) {
+            $errors[] = "Unsupported downloader type: {$downloaderType}";
         }
 
         // Validate reader
-        if (! in_array($config->readerConfig->type, $this->getAvailableReaders())) {
+        if (! in_array($config->readerConfig->type, $this->getAvailableReaders(), true)) {
             $errors[] = 'Unsupported reader type';
         }
 

@@ -14,10 +14,28 @@ abstract class AbstractReader implements ReaderInterface
 
     public function read(string $contents, array $options = []): array
     {
+        // `max_rows` is a reserved cross-reader option (not part of any reader's
+        // own definitions): cap the rows returned. Readers that can stop early
+        // (e.g. CSV) also receive it via $options to avoid parsing the whole file.
+        $maxRows = isset($options['max_rows']) && $options['max_rows'] !== null
+            ? max(0, (int) $options['max_rows'])
+            : null;
+        unset($options['max_rows']);
+
         $this->validateOptions($options);
         $options = $this->mergeWithDefaults($options);
 
-        return $this->doRead($contents, $options);
+        if ($maxRows !== null) {
+            $options['max_rows'] = $maxRows;
+        }
+
+        $rows = $this->doRead($contents, $options);
+
+        if ($maxRows !== null && count($rows) > $maxRows) {
+            $rows = array_slice($rows, 0, $maxRows);
+        }
+
+        return $rows;
     }
 
     /**

@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace Elaitech\Import\Services\Pipeline\Pipes;
 
+use Closure;
 use Elaitech\Import\Enums\ImageDownloadMode;
 use Elaitech\Import\Enums\PipelineStage;
 use Elaitech\Import\Services\Core\Contracts\ResultSaverInterface;
-use Elaitech\Import\Services\Jobs\ImageDownloadJob;
 use Elaitech\Import\Services\Pipeline\DTOs\PipelinePassable;
 use Elaitech\Import\Services\Pipeline\DTOs\SaveResultData;
-use Closure;
 use Illuminate\Contracts\Container\Container;
 use Psr\Log\LoggerInterface;
 
@@ -76,10 +75,10 @@ final readonly class SavePipe
     /**
      * Save products to the database.
      *
-     * @param PipelinePassable $passable The pipeline passable containing config
+     * @param  PipelinePassable  $passable  The pipeline passable containing config
      * @return SaveResultData The save result
      */
-    private function saveProducts( PipelinePassable $passable): SaveResultData
+    private function saveProducts(PipelinePassable $passable): SaveResultData
     {
         $targetId = $passable->config->targetId;
 

@@ -13,11 +13,14 @@ final class CsvReader extends AbstractReader
     protected function doRead(string $contents, array $options): array
     {
         $contents = $this->normalizeLineEndings($contents);
-        $delimiter = $options['delimiter'];
+        // Config/YAML supplies tab as the two-character literal "\t"; fgetcsv
+        // needs a single real tab character.
+        $delimiter = $options['delimiter'] === '\t' ? "\t" : $options['delimiter'];
         $enclosure = $options['enclosure'];
         $escape = $options['escape'];
         $hasHeader = $options['has_header'];
         $trim = $options['trim'];
+        $maxRows = isset($options['max_rows']) ? (int) $options['max_rows'] : null;
 
         $rows = [];
         $headers = [];
@@ -45,6 +48,11 @@ final class CsvReader extends AbstractReader
             } else {
                 $rows[] = $data;
             }
+
+            // Stop early when a row cap is set (e.g. wizard column discovery).
+            if ($maxRows !== null && count($rows) >= $maxRows) {
+                break;
+            }
         }
 
         fclose($handle);
@@ -59,7 +67,7 @@ final class CsvReader extends AbstractReader
                 type: 'string',
                 default: ',',
                 description: 'Field delimiter character',
-                allowedValues: [',', ';', '\t', '|']
+                allowedValues: [',', ';', '\t', "\t", '|']
             ),
             'enclosure' => new OptionDefinition(
                 type: 'string',

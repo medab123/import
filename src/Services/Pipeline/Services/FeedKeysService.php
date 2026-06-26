@@ -31,8 +31,6 @@ final class FeedKeysService
      */
     public function getFeedKeys(ImportPipeline $pipeline): array
     {
-        return $this->fetchFeedKeysFromPipeline($pipeline);
-
         $cacheKey = $this->getCacheKey($pipeline->id);
 
         if ($cached = Cache::get($cacheKey)) {
@@ -197,19 +195,19 @@ final class FeedKeysService
             $value = mb_convert_encoding($value, 'UTF-8', 'UTF-8');
 
             // Truncate to 100 characters
-            return mb_strlen($value) > 100 ? mb_substr($value, 0, 100) . '...' : $value;
+            return mb_strlen($value) > 100 ? mb_substr($value, 0, 100).'...' : $value;
         }, $values);
 
         // Generate preview from the first value
         $preview = $truncatedValues[0] ?? null;
         if ($preview && mb_strlen($preview) > 50) {
-            $preview = mb_substr($preview, 0, 50) . '...';
+            $preview = mb_substr($preview, 0, 50).'...';
         }
 
         return [
             'key' => $key,
             'preview' => $preview,
-            'display' => $key . ' | ' . $preview,
+            'display' => $key.' | '.$preview,
             'uniqueValues' => $truncatedValues,
         ];
     }

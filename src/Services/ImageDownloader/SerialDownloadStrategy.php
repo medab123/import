@@ -2,13 +2,13 @@
 
 namespace Elaitech\Import\Services\ImageDownloader;
 
-use App\Models\Product;
 use Elaitech\Import\Services\Core\Abstracts\AbstractDownloadStrategy;
 use Elaitech\Import\Services\Core\Contracts\DownloadStrategyInterface;
 use Elaitech\Import\Services\Core\DTOs\ImageMetaDataData;
 use Elaitech\Import\Services\Core\DTOs\ImportedImageData;
 use Exception;
 use GuzzleHttp\Exception\RequestException;
+use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class SerialDownloadStrategy extends AbstractDownloadStrategy implements DownloadStrategyInterface
@@ -16,12 +16,12 @@ class SerialDownloadStrategy extends AbstractDownloadStrategy implements Downloa
     /**
      * @return ImportedImageData[]
      */
-    public function download(array $urls, Product $product): array
+    public function download(array $urls, Model $product): array
     {
         $urls = collect($urls)->filter()->unique()->values();
 
         $existingMedia = $product
-            ->getMedia(Product::MEDIA_COLLECTION)
+            ->getMedia(config('import-pipelines.media.collection', 'import'))
             ->keyBy(fn (Media $media) => data_get($media->getCustomProperty('meta'), 'url'));
 
         return $urls->map(function (string $url) use ($product, $existingMedia) {
@@ -52,7 +52,7 @@ class SerialDownloadStrategy extends AbstractDownloadStrategy implements Downloa
         })->filter()->values()->all();
     }
 
-    private function downloadAndStoreImage(string $url, Product $product, ?Media $media, ImageMetaDataData $metadata): ImportedImageData
+    private function downloadAndStoreImage(string $url, Model $product, ?Media $media, ImageMetaDataData $metadata): ImportedImageData
     {
         $action = $media ? 'replace' : 'create';
 
@@ -70,12 +70,12 @@ class SerialDownloadStrategy extends AbstractDownloadStrategy implements Downloa
         );
     }
 
-    protected function fetchImageContent(string $url, Product $product): string
+    protected function fetchImageContent(string $url, Model $product): string
     {
         return tap($this->tryRequest('get', $url, $product), fn () => null)->getBody()->getContents();
     }
 
-    private function fetchImageMetaData(string $url, Product $product): ImageMetaDataData
+    private function fetchImageMetaData(string $url, Model $product): ImageMetaDataData
     {
         $response = $this->tryRequest('head', $url, $product);
 
@@ -97,7 +97,7 @@ class SerialDownloadStrategy extends AbstractDownloadStrategy implements Downloa
         return $meta;
     }
 
-    private function tryRequest(string $method, string $url, Product $product)
+    private function tryRequest(string $method, string $url, Model $product)
     {
         try {
             return $this->client->$method($url);

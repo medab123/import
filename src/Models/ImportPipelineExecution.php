@@ -50,11 +50,6 @@ final class ImportPipelineExecution extends Model
         return $this->hasMany(ImportPipelineLog::class, 'execution_id');
     }
 
-    public function results(): HasMany
-    {
-        return $this->hasMany(\App\Models\ImportPipelineResult::class, 'execution_id');
-    }
-
     // Scopes
     public function scopeByStatus($query, ImportPipelineStatus $status)
     {

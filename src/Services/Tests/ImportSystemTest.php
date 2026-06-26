@@ -6,10 +6,15 @@ namespace Elaitech\Import\Services\Tests;
 
 use Elaitech\Import\Services\Core\Cache\ImportCache;
 use Elaitech\Import\Services\Core\Configuration\ImportConfig;
+use Elaitech\Import\Services\Core\Contracts\DownloaderInterface;
+use Elaitech\Import\Services\Core\Contracts\ReaderInterface;
 use Elaitech\Import\Services\Core\Exceptions\FactoryException;
 use Elaitech\Import\Services\Core\Registry\ServiceRegistry;
 use Elaitech\Import\Services\Downloader\Factories\DownloaderFactory;
+use Elaitech\Import\Services\Downloader\Implementations\HttpDownloader;
 use Elaitech\Import\Services\Reader\Factories\ReaderFactory;
+use Elaitech\Import\Services\Reader\Implementations\CsvReader;
+use Elaitech\Import\Services\Reader\Implementations\JsonReader;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -20,11 +25,11 @@ class ImportSystemTest extends TestCase
     public function test_reader_factory_validation(): void
     {
         $factory = new ReaderFactory;
-        $factory->register(['csv' => \Elaitech\Import\Services\Reader\Implementations\CsvReader::class]);
+        $factory->register(['csv' => CsvReader::class]);
 
         // Test valid reader
         $reader = $factory->for('csv');
-        $this->assertInstanceOf(\Elaitech\Import\Services\Core\Contracts\ReaderInterface::class, $reader);
+        $this->assertInstanceOf(ReaderInterface::class, $reader);
 
         // Test invalid type
         $this->expectException(FactoryException::class);
@@ -34,11 +39,11 @@ class ImportSystemTest extends TestCase
     public function test_downloader_factory_validation(): void
     {
         $factory = new DownloaderFactory;
-        $factory->register(['http' => \Elaitech\Import\Services\Downloader\Implementations\HttpDownloader::class]);
+        $factory->register(['http' => HttpDownloader::class]);
 
         // Test valid downloader
         $downloader = $factory->for('http');
-        $this->assertInstanceOf(\Elaitech\Import\Services\Core\Contracts\DownloaderInterface::class, $downloader);
+        $this->assertInstanceOf(DownloaderInterface::class, $downloader);
 
         // Test invalid scheme
         $this->expectException(FactoryException::class);
@@ -50,7 +55,7 @@ class ImportSystemTest extends TestCase
         $registry = new ServiceRegistry;
 
         $readerFactory = new ReaderFactory;
-        $readerFactory->register(['csv' => \Elaitech\Import\Services\Reader\Implementations\CsvReader::class]);
+        $readerFactory->register(['csv' => CsvReader::class]);
 
         $registry->registerFactory('reader', $readerFactory);
 
@@ -92,8 +97,8 @@ class ImportSystemTest extends TestCase
     {
         $factory = new ReaderFactory;
         $factory->register([
-            'csv' => \Elaitech\Import\Services\Reader\Implementations\CsvReader::class,
-            'json' => \Elaitech\Import\Services\Reader\Implementations\JsonReader::class,
+            'csv' => CsvReader::class,
+            'json' => JsonReader::class,
         ]);
 
         $this->assertTrue($factory->supports('csv'));
@@ -106,8 +111,8 @@ class ImportSystemTest extends TestCase
     {
         $factory = new ReaderFactory;
         $factory->register([
-            'csv' => \Elaitech\Import\Services\Reader\Implementations\CsvReader::class,
-            'json' => \Elaitech\Import\Services\Reader\Implementations\JsonReader::class,
+            'csv' => CsvReader::class,
+            'json' => JsonReader::class,
         ]);
 
         $types = $factory->getAvailableTypes();

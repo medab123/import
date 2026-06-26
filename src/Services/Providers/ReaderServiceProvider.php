@@ -6,9 +6,6 @@ namespace Elaitech\Import\Services\Providers;
 
 use Elaitech\Import\Services\Reader\Contracts\ReaderFactoryInterface;
 use Elaitech\Import\Services\Reader\Factories\ReaderFactory;
-use Elaitech\Import\Services\Reader\Implementations\CsvReader;
-use Elaitech\Import\Services\Reader\Implementations\JsonReader;
-use Elaitech\Import\Services\Reader\Implementations\XmlReader;
 
 final class ReaderServiceProvider extends BaseImportServiceProvider
 {

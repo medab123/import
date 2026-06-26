@@ -71,6 +71,10 @@ final readonly class DataFilterService implements FilterInterface
         $filteredData = [];
         $errors = [];
 
+        // Snapshot the count up front: the loop unsets rows as it goes to free
+        // memory, so counting $config->data afterwards would report 0.
+        $totalRows = count($config->data);
+
         foreach ($config->data as $rowIndex => $row) {
             try {
                 $shouldInclude = $this->evaluateRow($row, $config->filterRules);
@@ -90,7 +94,7 @@ final readonly class DataFilterService implements FilterInterface
             }
         }
 
-        return $this->createFilterResult($config, $filteredData, $errors);
+        return $this->createFilterResult($config, $filteredData, $errors, $totalRows);
     }
 
     private function evaluateRow(array $row, array $filterRules): bool
@@ -117,9 +121,8 @@ final readonly class DataFilterService implements FilterInterface
         ];
     }
 
-    private function createFilterResult(FilterConfigurationData $config, array $filteredData, array $errors): FilterResultData
+    private function createFilterResult(FilterConfigurationData $config, array $filteredData, array $errors, int $totalRows): FilterResultData
     {
-        $totalRows = count($config->data);
         $filteredRows = count($filteredData);
         $excludedRows = $totalRows - $filteredRows;
         $filterStats = $this->calculateFilterStats($config->filterRules);

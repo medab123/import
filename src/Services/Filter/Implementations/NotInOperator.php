@@ -28,6 +28,14 @@ final class NotInOperator extends AbstractFilterOperator
         return true; // Supports all value types
     }
 
+    /**
+     * A null/empty data value is not in any list, so "not in" is true.
+     */
+    protected function handleNullValues(mixed $dataValue, mixed $filterValue): bool
+    {
+        return true;
+    }
+
     protected function doApply(mixed $dataValue, mixed $filterValue, array $options): bool
     {
         if (! $this->isArrayValue($filterValue)) {
@@ -36,12 +44,16 @@ final class NotInOperator extends AbstractFilterOperator
 
         $caseSensitive = $this->isCaseSensitive($options);
 
-        if (is_string($dataValue) && ! $caseSensitive) {
-            $dataValue = strtolower($dataValue);
-            $filterValue = array_map('strtolower', $filterValue);
+        // Compare as strings so a CSV "5" matches a config list value 5.
+        $needle = $this->convertToString($dataValue);
+        $haystack = array_map(fn ($v) => $this->convertToString($v), $filterValue);
+
+        if (! $caseSensitive) {
+            $needle = strtolower($needle);
+            $haystack = array_map('strtolower', $haystack);
         }
 
-        return ! in_array($dataValue, $filterValue, true);
+        return ! in_array($needle, $haystack, true);
     }
 
     public function getValidationRules(): array

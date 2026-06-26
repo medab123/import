@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Elaitech\Import\Services\Pipeline\Services;
 
+use Carbon\Carbon;
 use Elaitech\Import\Enums\ImportPipelineFrequency;
 use Elaitech\Import\Enums\PipelineStatus;
 use Elaitech\Import\Models\ImportPipeline;
 use Elaitech\Import\Services\Pipeline\Contracts\PipelineSchedulingServiceInterface;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 
 final class PipelineSchedulingService implements PipelineSchedulingServiceInterface
@@ -96,11 +96,11 @@ final class PipelineSchedulingService implements PipelineSchedulingServiceInterf
         $current = Carbon::createFromFormat('H:i', $currentTime);
         $start = Carbon::createFromFormat('H:i', $startTime);
 
-        $tolerance = 1;
+        // Minute-granularity window (was a 1-hour window). Configurable via
+        // import-pipelines.scheduling.tolerance_minutes (default 5).
+        $tolerance = (int) config('import-pipelines.scheduling.tolerance_minutes', 5);
 
-        $diffInHoures = abs($current->diffInHours($start));
-
-        return $diffInHoures <= $tolerance;
+        return abs($current->diffInMinutes($start)) <= $tolerance;
     }
 
     private function shouldExecuteWeekly($pipeline, Carbon $now): bool

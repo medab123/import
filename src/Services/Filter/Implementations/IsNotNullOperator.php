@@ -28,6 +28,15 @@ final class IsNotNullOperator extends AbstractFilterOperator
         return true; // Supports all value types
     }
 
+    /**
+     * This operator consumes no filter value, so it must bypass the abstract
+     * apply()'s null-filter-value short-circuit and evaluate the data directly.
+     */
+    public function apply(mixed $dataValue, mixed $filterValue, array $options = []): bool
+    {
+        return $this->doApply($this->normalizeValue($dataValue), $filterValue, $options);
+    }
+
     protected function doApply(mixed $dataValue, mixed $filterValue, array $options): bool
     {
         return ! $this->isNullValue($dataValue);

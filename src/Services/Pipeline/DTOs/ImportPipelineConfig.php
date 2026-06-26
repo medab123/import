@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Elaitech\Import\Services\Pipeline\DTOs;
 
-use Elaitech\Import\Enums\ImageDownloadMode;
-use Elaitech\Import\Models\ImportPipeline;
 use Elaitech\DataMapper\DTO\MappingConfigurationData;
 use Elaitech\DataMapper\DTO\MappingRuleData;
+use Elaitech\Import\Enums\ImageDownloadMode;
+use Elaitech\Import\Models\ImportPipeline;
 use Elaitech\Import\Services\Core\DTOs\DownloadRequestData;
 use Elaitech\Import\Services\Core\DTOs\FilterConfigurationData;
 use Elaitech\Import\Services\Core\DTOs\FilterRuleData;
@@ -62,8 +62,8 @@ final class ImportPipelineConfig extends Data
             imagesPrepareConfig: $imagesPrepareConfig ? self::buildImagesPrepareConfig($imagesPrepareConfig->config_data) : null,
             prepareConfig: self::buildPrepareConfig($pipeline),
             options: new ImportPipelineOptions,
-            targetId: (int)$pipeline->target_id,
-            pipelineId: (int)$pipeline->id
+            targetId: (int) $pipeline->target_id,
+            pipelineId: (int) $pipeline->id
         );
     }
 
@@ -169,7 +169,7 @@ final class ImportPipelineConfig extends Data
 
         return new PrepareConfigurationData(
             data: [],
-            targetId: (int)$pipeline->target_id,
+            targetId: (int) $pipeline->target_id,
             transformations: $transformationNames,
         );
     }

@@ -31,7 +31,7 @@ final class ImportPipelineTemplate extends Model
     // Relationships
     public function creator(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'created_by');
+        return $this->belongsTo(config('import-pipelines.user_model', User::class), 'created_by');
     }
 
     // Scopes

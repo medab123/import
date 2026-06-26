@@ -90,13 +90,25 @@ final class PipelineExecutionService implements PipelineExecutionServiceInterfac
     public function updateResult(ImportPipelineExecution $execution, ImportPipelineResult $result): void
     {
 
+        $allErrors = $result->getAllErrors();
+
         $execution->update([
             'total_rows' => $result->getTotalRows(),
             'success_rate' => $result->getSuccessRate(),
             'processed_rows' => $result->getProcessedRows(),
             'processing_time' => $result->stats->processingTime,
             'memory_usage' => $result->stats->getTotalMemoryUsage(),
-            'result_data' => [] // $result->toArray(),
+            // Bounded summary instead of the full (potentially huge) result payload.
+            'result_data' => [
+                'has_errors' => $result->hasErrors(),
+                'error_count' => count($allErrors),
+                'errors' => array_slice($allErrors, 0, 20),
+                'total_rows' => $result->getTotalRows(),
+                'processed_rows' => $result->getProcessedRows(),
+                'success_rate' => $result->getSuccessRate(),
+                'created' => $result->saveResult?->createdCount ?? 0,
+                'updated' => $result->saveResult?->updatedCount ?? 0,
+            ],
         ]);
 
     }

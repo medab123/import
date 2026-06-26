@@ -7,6 +7,8 @@ namespace Elaitech\Import\Services\Downloader\Abstracts;
 use Elaitech\Import\Services\Core\Contracts\DownloaderInterface;
 use Elaitech\Import\Services\Core\DTOs\DownloadRequestData;
 use Elaitech\Import\Services\Core\DTOs\DownloadResultData;
+use Elaitech\Import\Services\Core\DTOs\OptionDefinition;
+use Elaitech\Import\Services\Core\Exceptions\DownloaderException;
 use Elaitech\Import\Services\Core\Traits\HasOptions;
 use Elaitech\Import\Services\Core\Traits\ServiceTrait;
 use Illuminate\Support\Str;
@@ -14,6 +16,35 @@ use Illuminate\Support\Str;
 abstract class AbstractDownloader implements DownloaderInterface
 {
     use HasOptions, ServiceTrait;
+
+    /**
+     * Reusable option definition for the OOM guard. Concrete downloaders should
+     * include it in getOptionDefinitions() (key 'max_bytes', 0 = unlimited).
+     */
+    protected function maxBytesOption(): OptionDefinition
+    {
+        return new OptionDefinition(
+            type: 'integer',
+            default: 0,
+            description: 'Maximum download size in bytes (0 = unlimited)',
+            minValue: 0,
+        );
+    }
+
+    /**
+     * Guard against buffering an unexpectedly huge payload into memory.
+     */
+    protected function enforceMaxBytes(string $protocol, string $contents, array $options): void
+    {
+        $maxBytes = (int) ($options['max_bytes'] ?? 0);
+
+        if ($maxBytes > 0 && strlen($contents) > $maxBytes) {
+            throw DownloaderException::downloadFailed(
+                $protocol,
+                "Downloaded file exceeds the configured max_bytes limit ({$maxBytes} bytes)."
+            );
+        }
+    }
 
     public function download(DownloadRequestData $request): DownloadResultData
     {

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Elaitech\Import\Services\Pipeline\Pipes;
 
+use Closure;
 use Elaitech\Import\Enums\PipelineStage;
 use Elaitech\Import\Services\Pipeline\Contracts\PrepareServiceInterface;
 use Elaitech\Import\Services\Pipeline\DTOs\PipelinePassable;
 use Elaitech\Import\Services\Pipeline\DTOs\PrepareConfigurationData;
-use Closure;
 use Psr\Log\LoggerInterface;
 
 /**

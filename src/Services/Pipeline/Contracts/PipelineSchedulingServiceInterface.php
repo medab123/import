@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Elaitech\Import\Services\Pipeline\Contracts;
 
+use Carbon\Carbon;
 use Elaitech\Import\Enums\ImportPipelineFrequency;
 use Elaitech\Import\Models\ImportPipeline;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 
 interface PipelineSchedulingServiceInterface

@@ -28,6 +28,15 @@ final class NotBetweenOperator extends AbstractFilterOperator
         return true; // Supports all value types
     }
 
+    /**
+     * A null/empty data value is NOT inside any range, so "not between" is true.
+     * (Overrides the abstract default of false for null short-circuits.)
+     */
+    protected function handleNullValues(mixed $dataValue, mixed $filterValue): bool
+    {
+        return true;
+    }
+
     protected function doApply(mixed $dataValue, mixed $filterValue, array $options): bool
     {
         if (! $this->isArrayValue($filterValue) || count($filterValue) !== 2) {

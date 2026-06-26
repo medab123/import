@@ -23,9 +23,7 @@ final readonly class PrepareService implements PrepareServiceInterface
 {
     public function __construct(
         private LoggerInterface $logger
-    )
-    {
-    }
+    ) {}
 
     /**
      * Prepare data by applying configured transformations.
@@ -34,7 +32,7 @@ final readonly class PrepareService implements PrepareServiceInterface
     {
         $prepareUsing = config('import-pipelines.prepare.using');
 
-        if (!$prepareUsing) {
+        if (! $prepareUsing) {
             return new PrepareResultData(
                 preparedData: $config->data,
                 originalData: $config->data,
@@ -50,7 +48,7 @@ final readonly class PrepareService implements PrepareServiceInterface
         // resolved through the container (consistent with import-pipelines.save.using).
         $resolver = is_string($prepareUsing) ? app($prepareUsing) : $prepareUsing;
 
-        if (!($resolver instanceof ResolverInterface)) {
+        if (! ($resolver instanceof ResolverInterface)) {
             throw new InvalidArgumentException(
                 'import-pipelines.prepare.using must be a '.ResolverInterface::class.' instance or class-string.'
             );
@@ -60,13 +58,12 @@ final readonly class PrepareService implements PrepareServiceInterface
         $errors = [];
         $count = 0;
 
-
         foreach ($config->data as $index => $row) {
             try {
                 $preparedData[] = $resolver->handle($row, $config);
                 $count++;
             } catch (\Throwable $e) {
-                $errors[(string)$index] = "Row {$index}: {$e->getMessage()}";
+                $errors[(string) $index] = "Row {$index}: {$e->getMessage()}";
 
                 $this->logger->warning('Row preparation failed', [
                     'index' => $index,

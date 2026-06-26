@@ -35,19 +35,19 @@ final class ImportServiceProvider extends ServiceProvider
 
     public function boot()
     {
-        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         $this->publishes([
-            __DIR__ . '/../config/import-pipelines.php' => config_path('import-pipelines.php'),
+            __DIR__.'/../config/import-pipelines.php' => config_path('import-pipelines.php'),
         ], 'import-config');
         $this->publishes([
-            __DIR__ . '/../database/migrations' => database_path('migrations'),
+            __DIR__.'/../database/migrations' => database_path('migrations'),
         ], 'import-migrations');
     }
 
     public function register()
     {
         $this->mergeConfigFrom(
-            __DIR__ . '/../config/import-pipelines.php',
+            __DIR__.'/../config/import-pipelines.php',
             'import-pipelines'
         );
 

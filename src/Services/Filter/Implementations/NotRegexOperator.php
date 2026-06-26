@@ -28,6 +28,14 @@ final class NotRegexOperator extends AbstractFilterOperator
         return $this->isStringValue($value);
     }
 
+    /**
+     * A null/empty data value cannot match the pattern, so "not regex" is true.
+     */
+    protected function handleNullValues(mixed $dataValue, mixed $filterValue): bool
+    {
+        return true;
+    }
+
     protected function doApply(mixed $dataValue, mixed $filterValue, array $options): bool
     {
         if (! $this->isStringValue($dataValue)) {
