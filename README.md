@@ -185,7 +185,7 @@ Each import pipeline consists of **7 sequential pipes** that process data in ord
 | 4 | **MapPipe** | `Pipeline/Pipes/MapPipe.php` | Maps source fields → target fields via `elaitech/data-mapper` |
 | 5 | **ImagesPreparePipe** | `Pipeline/Pipes/ImagesPreparePipe.php` | Processes image URLs — separators, index skipping, download modes |
 | 6 | **PreparePipe** | `Pipeline/Pipes/PreparePipe.php` | Final prep — category resolution, VIN/stock ID generation |
-| 7 | **SavePipe** | `Pipeline/Pipes/SavePipe.php` | Placeholder save — simulates create/update stats without persistence |
+| 7 | **SavePipe** | `Pipeline/Pipes/SavePipe.php` | Persists prepared rows by delegating to the class set in `import-pipelines.save.using` (must implement `ResultSaverInterface`); throws if unset |
 
 ### Pipeline Configuration Steps (Stepper)
 
@@ -391,16 +391,35 @@ Register it in `FilterServiceProvider`:
 $registry->register(new CustomOperator());
 ```
 
-### Implementing Real Persistence (SavePipe)
+### Implementing Persistence (`ResultSaverInterface`)
 
-Replace the placeholder `SavePipe` with your domain-specific save logic:
+`SavePipe` does not persist anything itself — it resolves the class named by
+`config('import-pipelines.save.using')` and calls it. Point that config at your
+own saver:
 
 ```php
-// In your custom SavePipe:
-// 1. Receive prepared data from PreparePipe
-// 2. Create/update your product models
-// 3. Return statistics (created, updated, errors)
+// config/import-pipelines.php
+'save' => ['using' => \App\Import\ProductResultSaver::class],
+
+// App\Import\ProductResultSaver
+use Elaitech\Import\Services\Core\Contracts\ResultSaverInterface;
+use Elaitech\Import\Services\Pipeline\DTOs\PipelinePassable;
+use Elaitech\Import\Services\Pipeline\DTOs\SaveResultData;
+
+final class ProductResultSaver implements ResultSaverInterface
+{
+    public function save(PipelinePassable $passable, string|int $targetId): SaveResultData
+    {
+        $rows = $passable->prepareResult->preparedData; // final mapped rows
+        // create/update your models, then return counts:
+        return new SaveResultData(createdCount: /* … */, updatedCount: /* … */, totalProcessed: count($rows));
+    }
+}
 ```
+
+Category resolution and value normalization belong upstream: use a Prepare-step
+resolver (`config('import-pipelines.prepare.using')`, a `ResolverInterface`) and
+the mapper's `value_mapping`, respectively — keep the saver dumb.
 
 ---
 
